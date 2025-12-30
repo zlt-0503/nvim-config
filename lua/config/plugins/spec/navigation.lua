@@ -24,13 +24,6 @@ return {
     end,
   },
 
-  -- FZF native for better performance
-  {
-    "nvim-telescope/telescope-fzf-native.nvim",
-    build = "make",
-    lazy = true,
-  },
-
   -- Yazi file manager integration
   {
     "mikavilpas/yazi.nvim",

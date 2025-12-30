@@ -259,9 +259,9 @@ function M.lint()
   local lint = require("lint")
 
   lint.linters_by_ft = {
-    c = { "clangtidy" },
-    cpp = { "clangtidy" },
-    go = { "golangcilint" },
+    c = { "clang-tidy" },
+    cpp = { "clang-tidy" },
+    go = { "golangci-lint" },
   }
 
   vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
