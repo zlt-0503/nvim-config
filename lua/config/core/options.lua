@@ -35,5 +35,5 @@ opt.swapfile = false
 opt.backup = false
 
 -- Performance
-opt.lazyredraw = true
+-- Note: lazyredraw is disabled as it can cause UI issues with async plugins in Neovim 0.9+
 
