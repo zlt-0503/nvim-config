@@ -14,127 +14,111 @@ function M.mason()
 end
 
 function M.setup()
-  local lspconfig = require("lspconfig")
   local mason_lspconfig = require("mason-lspconfig")
   local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
   -- Enhanced capabilities for autocompletion
   local capabilities = cmp_nvim_lsp.default_capabilities()
 
-  -- LSP keymaps
-  local on_attach = function(_, bufnr)
-    local map = function(mode, lhs, rhs, desc)
-      vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
-    end
+  -- LSP keymaps (set up via LspAttach autocmd for Neovim 0.11+)
+  vim.api.nvim_create_autocmd("LspAttach", {
+    callback = function(args)
+      local bufnr = args.buf
+      local map = function(mode, lhs, rhs, desc)
+        vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
+      end
 
-    map("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
-    map("n", "gd", vim.lsp.buf.definition, "Go to definition")
-    map("n", "K", vim.lsp.buf.hover, "Hover documentation")
-    map("n", "gi", vim.lsp.buf.implementation, "Go to implementation")
-    map("n", "<C-k>", vim.lsp.buf.signature_help, "Signature help")
-    map("n", "<leader>rn", vim.lsp.buf.rename, "Rename symbol")
-    map("n", "<leader>ca", vim.lsp.buf.code_action, "Code action")
-    map("n", "gr", vim.lsp.buf.references, "Go to references")
-    map("n", "<leader>f", function()
-      vim.lsp.buf.format({ async = true })
-    end, "Format buffer")
-    map("n", "<leader>d", vim.diagnostic.open_float, "Show diagnostics")
-    map("n", "[d", vim.diagnostic.goto_prev, "Previous diagnostic")
-    map("n", "]d", vim.diagnostic.goto_next, "Next diagnostic")
-  end
-
-  -- Setup mason-lspconfig
-  -- Note: automatic_enable = false is required for Neovim 0.10.x compatibility
-  -- The automatic_enable feature uses vim.lsp.enable() which is only available in Neovim 0.11+
-  mason_lspconfig.setup({
-    ensure_installed = {
-      "clangd",      -- C/C++
-      "gopls",       -- Go
-      "rust_analyzer", -- Rust
-      "lua_ls",      -- Lua
-      "texlab",      -- LaTeX
-    },
-    automatic_installation = true,
-    automatic_enable = false,
+      map("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
+      map("n", "gd", vim.lsp.buf.definition, "Go to definition")
+      map("n", "K", vim.lsp.buf.hover, "Hover documentation")
+      map("n", "gi", vim.lsp.buf.implementation, "Go to implementation")
+      map("n", "<C-k>", vim.lsp.buf.signature_help, "Signature help")
+      map("n", "<leader>rn", vim.lsp.buf.rename, "Rename symbol")
+      map("n", "<leader>ca", vim.lsp.buf.code_action, "Code action")
+      map("n", "gr", vim.lsp.buf.references, "Go to references")
+      map("n", "<leader>f", function()
+        vim.lsp.buf.format({ async = true })
+      end, "Format buffer")
+      map("n", "<leader>d", vim.diagnostic.open_float, "Show diagnostics")
+      map("n", "[d", vim.diagnostic.goto_prev, "Previous diagnostic")
+      map("n", "]d", vim.diagnostic.goto_next, "Next diagnostic")
+    end,
   })
 
-  -- Configure LSP servers
-  mason_lspconfig.setup_handlers({
-    -- Default handler
-    function(server_name)
-      lspconfig[server_name].setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-      })
-    end,
+  -- Setup mason-lspconfig (Neovim 0.11+ compatible)
+  -- automatic_enable = true uses vim.lsp.enable() to automatically enable installed servers
+  mason_lspconfig.setup({
+    ensure_installed = {
+      "clangd",        -- C/C++
+      "gopls",         -- Go
+      "rust_analyzer", -- Rust
+      "lua_ls",        -- Lua
+      "texlab",        -- LaTeX
+    },
+    automatic_installation = true,
+    automatic_enable = true,
+  })
 
-    -- Clangd specific config
-    ["clangd"] = function()
-      lspconfig.clangd.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-        cmd = {
-          "clangd",
-          "--background-index",
-          "--clang-tidy",
-          "--header-insertion=iwyu",
-          "--completion-style=detailed",
-          "--function-arg-placeholders",
-          "--fallback-style=llvm",
-        },
-      })
-    end,
+  -- Configure LSP servers using vim.lsp.config (Neovim 0.11+ API)
+  -- Default configuration for all servers
+  vim.lsp.config("*", {
+    capabilities = capabilities,
+  })
 
-    -- Lua LS specific config
-    ["lua_ls"] = function()
-      lspconfig.lua_ls.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-          Lua = {
-            runtime = { version = "LuaJIT" },
-            diagnostics = { globals = { "vim" } },
-            workspace = {
-              library = vim.api.nvim_get_runtime_file("", true),
-              checkThirdParty = false,
-            },
-            telemetry = { enable = false },
-          },
-        },
-      })
-    end,
+  -- Clangd specific config
+  vim.lsp.config("clangd", {
+    capabilities = capabilities,
+    cmd = {
+      "clangd",
+      "--background-index",
+      "--clang-tidy",
+      "--header-insertion=iwyu",
+      "--completion-style=detailed",
+      "--function-arg-placeholders",
+      "--fallback-style=llvm",
+    },
+  })
 
-    -- Rust analyzer specific config
-    ["rust_analyzer"] = function()
-      lspconfig.rust_analyzer.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-          ["rust-analyzer"] = {
-            checkOnSave = {
-              command = "clippy",
-            },
-          },
+  -- Lua LS specific config
+  vim.lsp.config("lua_ls", {
+    capabilities = capabilities,
+    settings = {
+      Lua = {
+        runtime = { version = "LuaJIT" },
+        diagnostics = { globals = { "vim" } },
+        workspace = {
+          library = vim.api.nvim_get_runtime_file("", true),
+          checkThirdParty = false,
         },
-      })
-    end,
+        telemetry = { enable = false },
+      },
+    },
+  })
 
-    -- Go specific config
-    ["gopls"] = function()
-      lspconfig.gopls.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-          gopls = {
-            analyses = {
-              unusedparams = true,
-            },
-            staticcheck = true,
-            gofumpt = true,
-          },
+  -- Rust analyzer specific config
+  vim.lsp.config("rust_analyzer", {
+    capabilities = capabilities,
+    settings = {
+      ["rust-analyzer"] = {
+        checkOnSave = {
+          command = "clippy",
         },
-      })
-    end,
+      },
+    },
+  })
+
+  -- Go specific config
+  vim.lsp.config("gopls", {
+    capabilities = capabilities,
+    settings = {
+      gopls = {
+        analyses = {
+          unusedparams = true,
+        },
+        staticcheck = true,
+        gofumpt = true,
+      },
+    },
   })
 
   -- Diagnostic UI configuration
