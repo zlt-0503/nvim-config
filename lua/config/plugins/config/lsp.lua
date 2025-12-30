@@ -44,6 +44,8 @@ function M.setup()
   end
 
   -- Setup mason-lspconfig
+  -- Note: automatic_enable = false is required for Neovim 0.10.x compatibility
+  -- The automatic_enable feature uses vim.lsp.enable() which is only available in Neovim 0.11+
   mason_lspconfig.setup({
     ensure_installed = {
       "clangd",      -- C/C++
@@ -53,6 +55,7 @@ function M.setup()
       "texlab",      -- LaTeX
     },
     automatic_installation = true,
+    automatic_enable = false,
   })
 
   -- Configure LSP servers
