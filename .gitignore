@@ -1,0 +1,11 @@
+# Neovim plugin directory (lazy.nvim manages this)
+lazy-lock.json
+
+# OS-specific files
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Editor backup files
+*.bak
