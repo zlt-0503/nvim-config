@@ -36,7 +36,7 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     build = ":TSUpdate",
     config = function()
-      require("config.plugins.config.lsp").treesitter()
+      require("config.plugins.config.lsp").setup()
     end,
   },
 

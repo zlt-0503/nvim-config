@@ -10,7 +10,7 @@ lazy.setup({
   { import = "config.plugins.spec" },
 }, {
   defaults = { lazy = true },
-  checker = { enabled = true }, -- auto-check updates
+  checker = { enabled = true, notify = false }, -- auto-check updates
   change_detection = { notify = false },
   ui = { border = "rounded" },
 })
