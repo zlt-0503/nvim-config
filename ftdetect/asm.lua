@@ -8,9 +8,4 @@ vim.filetype.add({
     asm = "asm",    -- Generic assembly
     inc = "asm",    -- Assembly include files
   },
-  pattern = {
-    -- Match files with .s or .S extension that might contain ARM assembly
-    [".*%.s"] = "asm",
-    [".*%.S"] = "asm",
-  },
 })

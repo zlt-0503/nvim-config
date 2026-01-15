@@ -66,14 +66,28 @@ local function goto_asm_label()
         prompt_title = "Find Label: " .. word,
       })
     else
-      -- Fallback to vimgrep
+      -- Fallback to ripgrep if available, otherwise vimgrep
       local search_pattern = "^\\s*" .. vim.fn.escape(word, "\\") .. ":"
-      vim.cmd("silent! vimgrep /" .. search_pattern .. "/gj **/*.s **/*.S **/*.asm")
-      local qflist = vim.fn.getqflist()
-      if #qflist > 0 then
-        vim.cmd("copen")
+      local has_rg = vim.fn.executable("rg") == 1
+      
+      if has_rg then
+        local cmd = string.format("rg --vimgrep '^\\s*%s:' --type-add 'asm:*.{s,S,asm}' -t asm", word)
+        local output = vim.fn.systemlist(cmd)
+        if #output > 0 then
+          vim.fn.setqflist({}, 'r', { lines = output, title = 'Assembly Labels' })
+          vim.cmd("copen")
+        else
+          vim.notify("Label '" .. word .. "' not found", vim.log.levels.WARN)
+        end
       else
-        vim.notify("Label '" .. word .. "' not found", vim.log.levels.WARN)
+        -- Fallback to vimgrep with limited scope
+        vim.cmd("silent! vimgrep /" .. search_pattern .. "/gj **/*.s **/*.S **/*.asm")
+        local qflist = vim.fn.getqflist()
+        if #qflist > 0 then
+          vim.cmd("copen")
+        else
+          vim.notify("Label '" .. word .. "' not found", vim.log.levels.WARN)
+        end
       end
     end
   else
@@ -120,14 +134,17 @@ vim.keymap.set("n", "[s", [[?^\s*\.\w\+\zs<CR>]], vim.tbl_extend("force", opts, 
 -- Alternative to aerial: Show all labels in current file using telescope/quickfix
 local function show_labels()
   -- Pattern to match labels (word followed by colon at start of line)
-  local label_pattern = [[^\s*\w\+:]]
+  local label_pattern = [[^\s*\w+:]]
   
   if pcall(require, "telescope.builtin") then
-    require("telescope.builtin").grep_string({
-      search = label_pattern,
-      use_regex = true,
+    -- Use live_grep with better pattern matching
+    require("telescope.builtin").live_grep({
+      default_text = "^\\s*\\w+:",
       prompt_title = "Assembly Labels",
       search_dirs = { vim.fn.expand("%:p") },
+      additional_args = function()
+        return { "--pcre2" }  -- Enable PCRE2 for better regex support
+      end,
     })
   else
     -- Fallback to location list
