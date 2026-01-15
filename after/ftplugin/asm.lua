@@ -71,7 +71,10 @@ local function goto_asm_label()
       local has_rg = vim.fn.executable("rg") == 1
       
       if has_rg then
-        local cmd = string.format("rg --vimgrep '^\\s*%s:' --type-add 'asm:*.{s,S,asm}' -t asm", word)
+        -- Use systemlist with array to prevent command injection
+        -- ripgrep will handle the word safely as a separate argument
+        local pattern = "^\\s*" .. word:gsub("([%.%-%+%?%*%[%]%(%)])", "\\%1") .. ":"
+        local cmd = { "rg", "--vimgrep", pattern, "--type-add", "asm:*.{s,S,asm}", "-t", "asm" }
         local output = vim.fn.systemlist(cmd)
         if #output > 0 then
           vim.fn.setqflist({}, 'r', { lines = output, title = 'Assembly Labels' })
@@ -81,7 +84,9 @@ local function goto_asm_label()
         end
       else
         -- Fallback to vimgrep with limited scope
-        vim.cmd("silent! vimgrep /" .. search_pattern .. "/gj **/*.s **/*.S **/*.asm")
+        -- The search_pattern is already escaped with vim.fn.escape()
+        local safe_pattern = vim.fn.escape(search_pattern, "/\\")
+        vim.cmd("silent! vimgrep /" .. safe_pattern .. "/gj **/*.s **/*.S **/*.asm")
         local qflist = vim.fn.getqflist()
         if #qflist > 0 then
           vim.cmd("copen")
@@ -142,8 +147,13 @@ local function show_labels()
       default_text = "^\\s*\\w+:",
       prompt_title = "Assembly Labels",
       search_dirs = { vim.fn.expand("%:p") },
+      -- Only add PCRE2 flag if ripgrep is available
       additional_args = function()
-        return { "--pcre2" }  -- Enable PCRE2 for better regex support
+        if vim.fn.executable("rg") == 1 then
+          return { "--pcre2" }
+        else
+          return {}
+        end
       end,
     })
   else
