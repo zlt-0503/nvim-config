@@ -1,22 +1,13 @@
 -- Assembly filetype plugin
 -- Enhanced support for ARM64 and other assembly files
 
--- Wrap everything in pcall to prevent errors from breaking Neovim
-local ok, err = pcall(function()
-
--- Pattern constants for label matching
-local LABEL_PATTERN = [[^\s*\w+:]]  -- Vim regex pattern for labels
-local LABEL_PATTERN_RG = "^\\s*\\w+:"  -- ripgrep/PCRE pattern for labels
-
 -- Set up folding based on labels and sections
--- Note: TreeSitter doesn't have a reliable parser for all assembly dialects,
--- so we use marker-based folding instead
-vim.opt_local.foldmethod = "marker"
-vim.opt_local.foldmarker = "{{{,}}}"
+-- Note: TreeSitter doesn't have a reliable parser for assembly,
+-- so we use manual folding instead
+vim.opt_local.foldmethod = "manual"
 vim.opt_local.foldenable = false -- Don't fold by default
 
 -- Better syntax highlighting for assembly
--- Use Vim's built-in asm syntax which supports comments and basic highlighting
 vim.opt_local.syntax = "asm"
 
 -- Use tabs for assembly (common convention)
@@ -30,28 +21,18 @@ vim.opt_local.include = [[\v^\s*\.?\w+:]]
 vim.opt_local.includeexpr = ""
 
 -- Set commentstring for commenting assembly
--- ARM64 assembly typically uses @ or // for comments
--- GNU AS also supports # and /* */
-vim.opt_local.commentstring = "@ %s"  -- ARM assembly convention
-vim.opt_local.comments = "://,@,:#,s:/*,m:*,e:*/"
+vim.opt_local.commentstring = "// %s"  -- For ARM64 assembly
+vim.opt_local.comments = "://,://!,:#"
 
 -- Custom aerial configuration for assembly files
--- Note: Aerial doesn't support assembly files well without LSP or treesitter
--- We disable it and rely on telescope/grep for symbol search instead
 vim.b.aerial = {
-  -- Disable automatic attachment for assembly files
-  -- Use <leader>fs (telescope lsp_document_symbols) or grep for symbol search
+  -- Disable if no backend is available for this file
   attach = false,
-  -- You can still manually open aerial, but it won't show symbols
-  backends = {},
 }
 
 -- Custom function to jump to label definition
 local function goto_asm_label()
   local word = vim.fn.expand("<cword>")
-  -- Remove trailing colon if present
-  word = word:gsub(":$", "")
-  
   -- Search for label definition: "word:" at the beginning of a line (possibly with whitespace)
   local pattern = [[\v^\s*]] .. vim.fn.escape(word, "\\") .. [[:]]
   
@@ -61,48 +42,9 @@ local function goto_asm_label()
   
   local found = vim.fn.search(pattern, "W")
   if found == 0 then
-    -- Restore position if not found in current file
+    -- Restore position if not found
     vim.fn.setpos(".", current_pos)
-    
-    -- Try to search in other assembly files in the project
-    -- Use telescope if available for better UX
-    if pcall(require, "telescope.builtin") then
-      require("telescope.builtin").grep_string({
-        search = "^\\s*" .. word .. ":",
-        use_regex = true,
-        prompt_title = "Find Label: " .. word,
-      })
-    else
-      -- Fallback to ripgrep if available, otherwise vimgrep
-      local search_pattern = "^\\s*" .. vim.fn.escape(word, "\\") .. ":"
-      local has_rg = vim.fn.executable("rg") == 1
-      
-      if has_rg then
-        -- Use systemlist with array to prevent command injection
-        -- Escape special regex characters for ripgrep
-        local escaped_word = word:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?%{%}%|\\])", "\\%1")
-        local pattern = "^\\s*" .. escaped_word .. ":"
-        local cmd = { "rg", "--vimgrep", pattern, "--type-add", "asm:*.{s,S,asm}", "-t", "asm" }
-        local output = vim.fn.systemlist(cmd)
-        if #output > 0 then
-          vim.fn.setqflist({}, 'r', { lines = output, title = 'Assembly Labels' })
-          vim.cmd("copen")
-        else
-          vim.notify("Label '" .. word .. "' not found", vim.log.levels.WARN)
-        end
-      else
-        -- Fallback to vimgrep with limited scope
-        -- The search_pattern is already escaped with vim.fn.escape()
-        local safe_pattern = vim.fn.escape(search_pattern, "/\\")
-        vim.cmd("silent! vimgrep /" .. safe_pattern .. "/gj **/*.s **/*.S **/*.asm")
-        local qflist = vim.fn.getqflist()
-        if #qflist > 0 then
-          vim.cmd("copen")
-        else
-          vim.notify("Label '" .. word .. "' not found", vim.log.levels.WARN)
-        end
-      end
-    end
+    vim.notify("Label '" .. word .. "' not found in current file", vim.log.levels.WARN)
   else
     -- Add to jump list
     vim.cmd("normal! m'")
@@ -143,42 +85,3 @@ vim.keymap.set("n", "[[", [[?^\s*\w\+:\zs<CR>]], vim.tbl_extend("force", opts, {
 -- Quick jump to next/previous section (starting with .)
 vim.keymap.set("n", "]s", [[/^\s*\.\w\+\zs<CR>]], vim.tbl_extend("force", opts, { desc = "Next section" }))
 vim.keymap.set("n", "[s", [[?^\s*\.\w\+\zs<CR>]], vim.tbl_extend("force", opts, { desc = "Previous section" }))
-
--- Alternative to aerial: Show all labels in current file using telescope/quickfix
-local function show_labels()
-  if pcall(require, "telescope.builtin") then
-    -- Use live_grep with better pattern matching
-    require("telescope.builtin").live_grep({
-      default_text = LABEL_PATTERN_RG,
-      prompt_title = "Assembly Labels",
-      search_dirs = { vim.fn.expand("%:p") },
-      -- Try to use PCRE2 for better regex support, silently ignore if not available
-      additional_args = function()
-        -- Check if ripgrep supports PCRE2 (version 11.0+)
-        if vim.fn.executable("rg") == 1 then
-          local version_output = vim.fn.system("rg --version")
-          if version_output:match("ripgrep ([0-9]+)%.([0-9]+)") then
-            local major = tonumber(version_output:match("ripgrep ([0-9]+)"))
-            if major and major >= 11 then
-              return { "--pcre2" }
-            end
-          end
-        end
-        return {}
-      end,
-    })
-  else
-    -- Fallback to location list
-    vim.cmd("silent! lvimgrep /" .. LABEL_PATTERN .. "/gj %")
-    vim.cmd("lopen")
-  end
-end
-
-vim.keymap.set("n", "<leader>al", show_labels, vim.tbl_extend("force", opts, { desc = "Show all labels (assembly)" }))
-
-end) -- end pcall
-
-if not ok then
-  vim.notify("Error loading assembly ftplugin: " .. tostring(err), vim.log.levels.ERROR)
-end
-
