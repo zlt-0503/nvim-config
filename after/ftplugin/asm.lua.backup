@@ -175,10 +175,3 @@ local function show_labels()
 end
 
 vim.keymap.set("n", "<leader>al", show_labels, vim.tbl_extend("force", opts, { desc = "Show all labels (assembly)" }))
-
-end) -- end pcall
-
-if not ok then
-  vim.notify("Error loading assembly ftplugin: " .. tostring(err), vim.log.levels.ERROR)
-end
-
