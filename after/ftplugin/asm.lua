@@ -1,6 +1,10 @@
 -- Assembly filetype plugin
 -- Enhanced support for ARM64 and other assembly files
 
+-- Pattern constants for label matching
+local LABEL_PATTERN = [[^\s*\w+:]]  -- Vim regex pattern for labels
+local LABEL_PATTERN_RG = "^\\s*\\w+:"  -- ripgrep/PCRE pattern for labels
+
 -- Set up folding based on labels and sections
 -- Note: TreeSitter doesn't have a reliable parser for all assembly dialects,
 -- so we use marker-based folding instead
@@ -72,8 +76,9 @@ local function goto_asm_label()
       
       if has_rg then
         -- Use systemlist with array to prevent command injection
-        -- ripgrep will handle the word safely as a separate argument
-        local pattern = "^\\s*" .. word:gsub("([%.%-%+%?%*%[%]%(%)])", "\\%1") .. ":"
+        -- Escape special regex characters for ripgrep
+        local escaped_word = word:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?%{%}%|\\])", "\\%1")
+        local pattern = "^\\s*" .. escaped_word .. ":"
         local cmd = { "rg", "--vimgrep", pattern, "--type-add", "asm:*.{s,S,asm}", "-t", "asm" }
         local output = vim.fn.systemlist(cmd)
         if #output > 0 then
@@ -138,27 +143,30 @@ vim.keymap.set("n", "[s", [[?^\s*\.\w\+\zs<CR>]], vim.tbl_extend("force", opts, 
 
 -- Alternative to aerial: Show all labels in current file using telescope/quickfix
 local function show_labels()
-  -- Pattern to match labels (word followed by colon at start of line)
-  local label_pattern = [[^\s*\w+:]]
-  
   if pcall(require, "telescope.builtin") then
     -- Use live_grep with better pattern matching
     require("telescope.builtin").live_grep({
-      default_text = "^\\s*\\w+:",
+      default_text = LABEL_PATTERN_RG,
       prompt_title = "Assembly Labels",
       search_dirs = { vim.fn.expand("%:p") },
-      -- Only add PCRE2 flag if ripgrep is available
+      -- Try to use PCRE2 for better regex support, silently ignore if not available
       additional_args = function()
+        -- Check if ripgrep supports PCRE2 (version 11.0+)
         if vim.fn.executable("rg") == 1 then
-          return { "--pcre2" }
-        else
-          return {}
+          local version_output = vim.fn.system("rg --version")
+          if version_output:match("ripgrep ([0-9]+)%.([0-9]+)") then
+            local major = tonumber(version_output:match("ripgrep ([0-9]+)"))
+            if major and major >= 11 then
+              return { "--pcre2" }
+            end
+          end
         end
+        return {}
       end,
     })
   else
     -- Fallback to location list
-    vim.cmd("silent! lvimgrep /" .. label_pattern .. "/gj %")
+    vim.cmd("silent! lvimgrep /" .. LABEL_PATTERN .. "/gj %")
     vim.cmd("lopen")
   end
 end
