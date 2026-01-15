@@ -1,0 +1,59 @@
+# =========================
+# Neovim runtime artifacts
+# =========================
+# Plugin manager & plugins (lazy.nvim installs here)
+.nvim/
+plugin/
+pack/
+spell/
+site/
+autoload/
+
+# Persistent data / cache (varies by setup)
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.swn
+*.orig
+
+# Sessions / views / shada
+Session.vim
+Sessionx.vim
+*.vim
+view/
+shada/
+*.shada
+
+# Undo / backup (if you use custom dirs)
+undo/
+backup/
+swap/
+
+# LSP / DAP / formatter caches
+.lsp/
+.luarc.json
+.mason/
+.masonrc
+.dap/
+.dapui/
+
+# Treesitter compiled parsers (usually under data dir, but ignore if kept locally)
+parser/
+queries/.cache/
+
+# =========================
+# OS / editor junk
+# =========================
+.DS_Store
+Thumbs.db
+*~
+*.rej
+
+# =========================
+# Local machine overrides (optional)
+# =========================
+lua/config/local.lua
+lua/config/local/*.lua
+

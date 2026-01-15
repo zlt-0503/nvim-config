@@ -77,4 +77,20 @@ return {
       require("config.plugins.config.ui").whichkey()
     end,
   },
+
+  -- TODO comments highlighting
+  {
+    "folke/todo-comments.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = { "nvim-lua/plenary.nvim" },
+    keys = {
+      { "<leader>ft", "<cmd>TodoTelescope<cr>", desc = "Find TODOs" },
+      { "<leader>xt", "<cmd>TodoTrouble<cr>", desc = "TODOs (Trouble)" },
+      { "]t", function() require("todo-comments").jump_next() end, desc = "Next TODO" },
+      { "[t", function() require("todo-comments").jump_prev() end, desc = "Previous TODO" },
+    },
+    config = function()
+      require("config.plugins.config.ui").todo_comments()
+    end,
+  },
 }

@@ -6,7 +6,7 @@ opt.relativenumber = true
 opt.cursorline = true
 opt.signcolumn = "yes"
 opt.termguicolors = true
-opt.wrap = false
+opt.wrap = true
 
 -- Indent
 opt.expandtab = true

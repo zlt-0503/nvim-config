@@ -1,5 +1,19 @@
 -- Navigation and Search Plugins
 return {
+  -- Nvim-tree file explorer
+  {
+    "nvim-tree/nvim-tree.lua",
+    cmd = { "NvimTreeToggle", "NvimTreeFocus" },
+    keys = {
+      { "<leader>t", "<cmd>NvimTreeToggle<cr>", desc = "Toggle NvimTree" },
+      { "<leader>T", "<cmd>NvimTreeFocus<cr>", desc = "Focus NvimTree" },
+    },
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("config.plugins.config.navigation").nvimtree()
+    end,
+  },
+
   -- Telescope fuzzy finder
   {
     "nvim-telescope/telescope.nvim",
@@ -50,6 +64,32 @@ return {
     },
     config = function()
       require("config.plugins.config.navigation").flash()
+    end,
+  },
+
+  -- Aerial for code outline (great for assembly)
+  {
+    "stevearc/aerial.nvim",
+    cmd = { "AerialToggle", "AerialOpen" },
+    keys = {
+      { "<leader>a", "<cmd>AerialToggle<cr>", desc = "Toggle Aerial" },
+      { "<leader>A", "<cmd>AerialOpen<cr>", desc = "Open Aerial" },
+    },
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-tree/nvim-web-devicons",
+    },
+    config = function()
+      require("config.plugins.config.navigation").aerial()
+    end,
+  },
+
+  -- Enhanced marks for code navigation
+  {
+    "chentoast/marks.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("config.plugins.config.navigation").marks()
     end,
   },
 }
