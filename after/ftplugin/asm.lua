@@ -2,8 +2,9 @@
 -- Enhanced support for ARM64 and other assembly files
 
 -- Set up folding based on labels and sections
-vim.opt_local.foldmethod = "expr"
-vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+-- Note: TreeSitter doesn't have a reliable parser for assembly,
+-- so we use manual folding instead
+vim.opt_local.foldmethod = "manual"
 vim.opt_local.foldenable = false -- Don't fold by default
 
 -- Better syntax highlighting for assembly
