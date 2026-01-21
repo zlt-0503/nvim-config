@@ -235,10 +235,11 @@ function M.conform()
       lua = { "stylua" },
       latex = { "latexindent" },
     },
-    format_on_save = {
-      timeout_ms = 500,
-      lsp_fallback = true,
-    },
+    -- Disabled automatic formatting on save
+    -- format_on_save = {
+    --   timeout_ms = 500,
+    --   lsp_fallback = true,
+    -- },
   })
 end
 
@@ -246,8 +247,9 @@ function M.lint()
   local lint = require("lint")
 
   lint.linters_by_ft = {
-    c = { "clang-tidy" },
-    cpp = { "clang-tidy" },
+    -- Removed clang-tidy for C/C++ as it's not available
+    -- c = { "clang-tidy" },
+    -- cpp = { "clang-tidy" },
     go = { "golangci-lint" },
   }
 
