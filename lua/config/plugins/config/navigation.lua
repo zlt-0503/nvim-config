@@ -74,6 +74,18 @@ function M.telescope()
   local telescope = require("telescope")
   local actions = require("telescope.actions")
 
+  -- Custom buffer previewer to avoid ft_to_lang error
+  local function buffer_previewer_maker(filepath, bufnr, opts)
+    opts = opts or {}
+
+    filepath = vim.fn.expand(filepath)
+    require("telescope.previewers.utils").job_maker(
+      { "cat", "--", filepath },
+      bufnr,
+      opts
+    )
+  end
+
   telescope.setup({
     defaults = {
       prompt_prefix = "   ",
@@ -120,6 +132,8 @@ function M.telescope()
         "--hidden",
         "--glob=!.git/",
       },
+      -- Use custom buffer previewer to avoid ft_to_lang compatibility issues
+      buffer_previewer_maker = buffer_previewer_maker,
     },
     pickers = {
       find_files = {

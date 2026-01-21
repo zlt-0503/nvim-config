@@ -126,7 +126,14 @@ function M.setup()
     virtual_text = {
       prefix = "●",
     },
-    signs = true,
+    signs = {
+      text = {
+        [vim.diagnostic.severity.ERROR] = " ",
+        [vim.diagnostic.severity.WARN] = " ",
+        [vim.diagnostic.severity.HINT] = "󰌵 ",
+        [vim.diagnostic.severity.INFO] = " ",
+      },
+    },
     underline = true,
     update_in_insert = false,
     severity_sort = true,
@@ -135,13 +142,6 @@ function M.setup()
       source = "always",
     },
   })
-
-  -- Diagnostic signs
-  local signs = { Error = " ", Warn = " ", Hint = "󰌵 ", Info = " " }
-  for type, icon in pairs(signs) do
-    local hl = "DiagnosticSign" .. type
-    vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-  end
 end
 
 function M.treesitter()
