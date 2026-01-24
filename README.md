@@ -315,6 +315,46 @@ This configuration uses **Tokyo Night** with transparent background support, opt
   ```
 - **True Colors**: Requires a terminal with true color support (Alacritty supports this by default).
 
+### Working with Kernel Source Code
+
+This configuration has special handling for Linux kernel and similar source trees:
+
+- **Automatic Detection**: C files in kernel source trees are automatically detected based on file paths and project structure (e.g., presence of `Kconfig`, `Kbuild`, kernel-style `Makefile`).
+- **Reduced Diagnostics**: For kernel code, LSP diagnostics are less intrusive:
+  - Inline error messages (virtual text) are disabled
+  - Gutter signs are still shown
+  - Use `<leader>d` to view diagnostics in a floating window
+- **Coding Style**: Kernel coding style is automatically applied (tabs, 8-space indentation)
+
+#### Improving LSP Accuracy for Kernel Code
+
+For better LSP support in kernel projects, generate a `compile_commands.json` file:
+
+```bash
+# For Linux kernel (requires Python)
+cd /path/to/kernel/source
+make defconfig  # or your preferred config
+python scripts/clang-tools/gen_compile_commands.py
+
+# For other build systems
+# Use bear (https://github.com/rizsotto/Bear)
+bear -- make
+```
+
+Place the `compile_commands.json` in your project root. clangd will automatically use it to understand include paths and build flags.
+
+#### Customizing Diagnostic Behavior
+
+By default, inline diagnostic messages (virtual text) are disabled to reduce visual clutter. To enable them globally, edit `lua/config/plugins/config/lsp.lua`:
+
+```lua
+vim.diagnostic.config({
+  virtual_text = { prefix = "●" },  -- Enable with custom prefix
+  -- or
+  virtual_text = true,  -- Enable with default settings
+})
+```
+
 ## 📄 License
 
 MIT License
