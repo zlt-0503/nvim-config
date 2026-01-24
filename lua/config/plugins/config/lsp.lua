@@ -76,7 +76,7 @@ function M.setup()
       "--completion-style=detailed",
       "--function-arg-placeholders",
       "--fallback-style=llvm",
-      "--query-driver=/**/*",  -- Allow querying system compilers for include paths
+      "--query-driver=/usr/bin/*-gcc*,/usr/bin/clang*,/usr/bin/g++*",  -- Allow querying common compiler paths
       "--compile-commands-dir=.",  -- Look for compile_commands.json
     },
   })
