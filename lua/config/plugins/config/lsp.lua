@@ -76,6 +76,8 @@ function M.setup()
       "--completion-style=detailed",
       "--function-arg-placeholders",
       "--fallback-style=llvm",
+      "--query-driver=/**/*",  -- Allow querying system compilers for include paths
+      "--compile-commands-dir=.",  -- Look for compile_commands.json
     },
   })
 
@@ -122,12 +124,12 @@ function M.setup()
   })
 
   -- Diagnostic UI configuration
+  -- Disabled virtual_text by default to reduce noise, especially for complex projects
+  -- Use <leader>d to show diagnostics in a floating window
   vim.diagnostic.config({
-    virtual_text = {
-      prefix = "●",
-    },
-    signs = true,
-    underline = true,
+    virtual_text = false,  -- Disable inline diagnostic messages
+    signs = true,          -- Show signs in the gutter
+    underline = true,      -- Underline problematic code
     update_in_insert = false,
     severity_sort = true,
     float = {
