@@ -264,10 +264,11 @@ The following are installed automatically via Mason (`:Mason`):
 - `rust-analyzer` - Rust LSP
 - `lua-language-server` - Lua LSP
 - `texlab` - LaTeX LSP
-- `clang-format` - C/C++ formatter
+- `clang-format` - C/C++ formatter (optional - manual formatting with `<leader>f`)
 - `gofumpt`, `goimports` - Go formatters
 - `golangci-lint` - Go linter
-- `clang-tidy` - C/C++ linter
+
+**Note:** `clang-tidy` is not enabled by default for C/C++ linting. If you wish to use it, install it via Mason and add it back to the linters configuration in `lua/config/plugins/config/lsp.lua`.
 
 ## 🚀 Installation
 
