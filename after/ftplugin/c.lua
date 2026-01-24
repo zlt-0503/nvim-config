@@ -39,8 +39,9 @@ local function is_kernel_source()
       if ok then
         local makefile_content = table.concat(makefile_lines, "\n")
         -- Check for kernel-specific patterns
+        -- obj-y and obj-m are kernel build system indicators
         if makefile_content:match("KERNELRELEASE") or 
-           makefile_content:match("obj%-[my]") or
+           makefile_content:match("obj%-[ym]") or
            makefile_content:match("vmlinux") then
           return true
         end
