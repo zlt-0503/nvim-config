@@ -84,6 +84,9 @@ nvim-config/
 | telescope-fzf-native.nvim | FZF sorter for Telescope | https://github.com/nvim-telescope/telescope-fzf-native.nvim |
 | yazi.nvim | Yazi file manager integration | https://github.com/mikavilpas/yazi.nvim |
 | flash.nvim | Quick navigation | https://github.com/folke/flash.nvim |
+| aerial.nvim | Code outline and symbol viewer | https://github.com/stevearc/aerial.nvim |
+| marks.nvim | Enhanced marks | https://github.com/chentoast/marks.nvim |
+| nvim-tree.lua | File explorer | https://github.com/nvim-tree/nvim-tree.lua |
 
 ### Git Integration
 | Plugin | Description | Repository |
@@ -164,8 +167,12 @@ nvim-config/
 ### Navigation
 | Key | Mode | Description |
 |-----|------|-------------|
+| `<leader>t` | Normal | Toggle NvimTree |
+| `<leader>T` | Normal | Focus NvimTree |
 | `<leader>e` | Normal | Open Yazi |
 | `<leader>E` | Normal | Open Yazi in cwd |
+| `<leader>a` | Normal | Toggle Aerial (code outline) |
+| `<leader>A` | Normal | Open Aerial |
 | `s` | Normal, Visual, Operator | Flash jump |
 | `S` | Normal, Visual, Operator | Flash Treesitter |
 | `r` | Operator | Remote Flash |
@@ -188,6 +195,21 @@ nvim-config/
 | `<leader>lv` | Normal | View PDF |
 | `<leader>lc` | Normal | Clean build files |
 | `<leader>lt` | Normal | Open TOC |
+
+### Assembly (ARM64 & others)
+| Key | Mode | Description |
+|-----|------|-------------|
+| `gd` | Normal | Go to label definition (searches current file, then all .s/.S/.asm files) |
+| `gr` | Normal | Find all references to label |
+| `]]` / `[[` | Normal | Jump to next/previous label |
+| `]s` / `[s` | Normal | Jump to next/previous section (directives starting with .) |
+| `<leader>al` | Normal | Show all labels in current file (alternative to aerial) |
+
+**Note:** Assembly files don't have LSP or TreeSitter support, so this configuration:
+- Uses Vim's built-in `asm` syntax for highlighting (supports comments with `@`, `//`, `#`, and `/* */`)
+- Implements custom label navigation with `gd` that searches across project files
+- Aerial won't show symbols (use `<leader>al` or `<leader>fs` with grep instead)
+- Supports `.s`, `.S`, `.asm`, and `.inc` file extensions
 
 ### Completion (Insert Mode)
 | Key | Mode | Description |

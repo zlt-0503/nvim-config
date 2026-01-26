@@ -140,7 +140,14 @@ function M.setup()
 end
 
 function M.treesitter()
-  require("nvim-treesitter.configs").setup({
+  -- Try to load nvim-treesitter configs
+  local ok, treesitter_configs = pcall(require, "nvim-treesitter.configs")
+  if not ok then
+    vim.notify("nvim-treesitter.configs not found. Treesitter features will be limited.", vim.log.levels.WARN)
+    return
+  end
+  
+  treesitter_configs.setup({
     ensure_installed = {
       "c",
       "cpp",
