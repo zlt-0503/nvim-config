@@ -1,0 +1,19 @@
+snippet main "main function" b
+fn main() {
+    ${0}
+}
+endsnippet
+
+snippet test "Rust test" b
+#[test]
+fn ${1:name}() {
+    ${0}
+}
+endsnippet
+
+snippet res "Result function" b
+fn ${1:name}() -> Result<${2:()}, ${3:Box<dyn std::error::Error>}> {
+    ${0}
+    Ok(())
+}
+endsnippet

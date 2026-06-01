@@ -1,0 +1,17 @@
+snippet hdr "Linux kernel header guard" b
+#ifndef ${1:HEADER_NAME}_H
+#define ${1}_H
+
+${0}
+
+#endif /* ${1}_H */
+endsnippet
+
+snippet pr_err "kernel pr_err" b
+pr_err("${1:message}: %d\n", ${2:ret});
+endsnippet
+
+snippet ret "kernel error return" b
+if (${1:ret})
+	return ${1};
+endsnippet

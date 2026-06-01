@@ -1,0 +1,21 @@
+snippet main "main package" b
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println(${1:"hello"})
+}
+endsnippet
+
+snippet err "error check" b
+if err != nil {
+	return ${1:err}
+}
+endsnippet
+
+snippet test "Go test" b
+func Test${1:Name}(t *testing.T) {
+	${0}
+}
+endsnippet

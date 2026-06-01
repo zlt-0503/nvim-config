@@ -1,0 +1,8 @@
+tags
+tags-*
+*.spl
+*.exe
+*.out
+.netrwhist
+*.log
+.DS_Store
