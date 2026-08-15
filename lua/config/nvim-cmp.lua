@@ -1,20 +1,18 @@
 -- Setup nvim-cmp.
 local cmp = require("cmp")
 local lspkind = require("lspkind")
-local luasnip = require("luasnip")
+local float_border = require("config.float-border")
 
 cmp.setup {
   snippet = {
     expand = function(args)
-      luasnip.lsp_expand(args.body)
+      vim.fn["UltiSnips#Anon"](args.body)
     end,
   },
   mapping = cmp.mapping.preset.insert {
     ["<Tab>"] = function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
       else
         fallback()
       end
@@ -22,8 +20,6 @@ cmp.setup {
     ["<S-Tab>"] = function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
       else
         fallback()
       end
@@ -36,7 +32,7 @@ cmp.setup {
   },
   sources = {
     { name = "nvim_lsp" }, -- For nvim-lsp
-    { name = "luasnip" },
+    { name = "ultisnips" },
     { name = "path" }, -- for path completion
     { name = "buffer", keyword_length = 2 }, -- for buffer word completion
     { name = "emoji", insert = true }, -- emoji completion
@@ -48,12 +44,22 @@ cmp.setup {
   view = {
     entries = "custom",
   },
+  window = {
+    completion = cmp.config.window.bordered {
+      border = float_border.chars,
+      winhighlight = float_border.cmp_winhighlight,
+    },
+    documentation = cmp.config.window.bordered {
+      border = float_border.chars,
+      winhighlight = float_border.cmp_winhighlight,
+    },
+  },
   formatting = {
     format = lspkind.cmp_format {
       mode = "symbol_text",
       menu = {
         nvim_lsp = "[LSP]",
-        luasnip = "[Snip]",
+        ultisnips = "[US]",
         nvim_lua = "[Lua]",
         path = "[Path]",
         buffer = "[Buffer]",
@@ -67,7 +73,7 @@ cmp.setup {
 cmp.setup.filetype("tex", {
   sources = {
     { name = "omni" },
-    { name = "luasnip" },
+    { name = "ultisnips" },
     { name = "buffer", keyword_length = 2 }, -- for buffer word completion
     { name = "path" }, -- for path completion
   },

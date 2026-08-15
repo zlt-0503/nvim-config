@@ -5,6 +5,7 @@ local lsp = vim.lsp
 local diagnostic = vim.diagnostic
 
 local utils = require("utils")
+local float_border = require("config.float-border")
 
 -- set quickfix list from diagnostics in a certain buffer, not the whole workspace
 local set_qflist = function(buf_num, severity)
@@ -29,8 +30,12 @@ local custom_attach = function(client, bufnr)
 
   map("n", "gd", vim.lsp.buf.definition, { desc = "go to definition" })
   map("n", "<C-]>", vim.lsp.buf.definition)
-  map("n", "K", vim.lsp.buf.hover)
-  map("n", "<C-k>", vim.lsp.buf.signature_help)
+  map("n", "K", function()
+    vim.lsp.buf.hover({ border = float_border.lsp })
+  end)
+  map("n", "<C-k>", function()
+    vim.lsp.buf.signature_help({ border = float_border.lsp })
+  end)
   map("n", "<space>rn", vim.lsp.buf.rename, { desc = "varialbe rename" })
   map("n", "gr", vim.lsp.buf.references, { desc = "show references" })
   map("n", "[d", diagnostic.goto_prev, { desc = "previous diagnostic" })
@@ -57,7 +62,7 @@ local custom_attach = function(client, bufnr)
       local float_opts = {
         focusable = false,
         close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
-        border = "rounded",
+        border = float_border.lsp,
         source = "always", -- show source in diagnostic popup window
         prefix = " ",
       }
@@ -249,17 +254,18 @@ if utils.executable("lua-language-server") then
   })
 end
 
--- Change diagnostic signs.
-fn.sign_define("DiagnosticSignError", { text = '🆇', texthl = "DiagnosticSignError" })
-fn.sign_define("DiagnosticSignWarn", { text = '⚠️', texthl = "DiagnosticSignWarn" })
-fn.sign_define("DiagnosticSignInfo", { text = 'ℹ️', texthl = "DiagnosticSignInfo" })
-fn.sign_define("DiagnosticSignHint", { text = '', texthl = "DiagnosticSignHint" })
-
 -- global config for diagnostic
 diagnostic.config {
   underline = false,
   virtual_text = false,
-  signs = true,
+  signs = {
+    text = {
+      [diagnostic.severity.ERROR] = '🆇',
+      [diagnostic.severity.WARN] = '⚠️',
+      [diagnostic.severity.INFO] = 'ℹ️',
+      [diagnostic.severity.HINT] = '',
+    },
+  },
   severity_sort = true,
 }
 
@@ -272,5 +278,9 @@ diagnostic.config {
 
 -- Change border of documentation hover window, See https://github.com/neovim/neovim/pull/13998.
 lsp.handlers["textDocument/hover"] = lsp.with(vim.lsp.handlers.hover, {
-  border = "rounded",
+  border = float_border.lsp,
+})
+
+lsp.handlers["textDocument/signatureHelp"] = lsp.with(vim.lsp.handlers.signature_help, {
+  border = float_border.lsp,
 })

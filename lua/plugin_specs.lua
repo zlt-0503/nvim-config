@@ -1,18 +1,21 @@
 local utils = require("utils")
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local has_lazy = pcall(require, "lazy")
 
-if not vim.uv.fs_stat(lazypath) then
-  vim.fn.system {
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
-    lazypath,
-  }
+if not has_lazy then
+  if not vim.uv.fs_stat(lazypath) then
+    vim.fn.system {
+      "git",
+      "clone",
+      "--filter=blob:none",
+      "https://github.com/folke/lazy.nvim.git",
+      "--branch=stable", -- latest stable release
+      lazypath,
+    }
+  end
+  vim.opt.rtp:prepend(lazypath)
 end
-vim.opt.rtp:prepend(lazypath)
 
 -- check if firenvim is active
 local firenvim_not_active = function()
@@ -32,8 +35,7 @@ local plugin_specs = {
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-omni",
       "hrsh7th/cmp-emoji",
-      "L3MON4D3/LuaSnip",
-      "saadparwaiz1/cmp_luasnip",
+      "quangnguyen30192/cmp-nvim-ultisnips",
     },
     config = function()
       require("config.nvim-cmp")
@@ -259,19 +261,9 @@ local plugin_specs = {
   },
 
   -- Snippet engine and snippet template
-  {
-    "L3MON4D3/LuaSnip",
-    event = "InsertEnter",
-    dependencies = {
-      "honza/vim-snippets",
-    },
-    config = function()
-      require("luasnip.loaders.from_snipmate").lazy_load()
-      require("luasnip.loaders.from_snipmate").lazy_load({
-        paths = { vim.fn.stdpath("config") .. "/my_snippets" },
-      })
-    end,
-  },
+  { "SirVer/ultisnips", dependencies = {
+    "honza/vim-snippets",
+  }, event = "InsertEnter" },
 
   -- Automatic insertion and deletion of a pair of characters
   {
@@ -350,7 +342,13 @@ local plugin_specs = {
 
   -- Better git log display
   { "rbong/vim-flog", cmd = { "Flog" } },
-  { "akinsho/git-conflict.nvim", version = "*", event = { "BufReadPre" }, config = true },
+  {
+    "akinsho/git-conflict.nvim",
+    version = "*",
+    pin = true, -- Keep the local Neovim 0.11 deprecation fixes until upstream releases them.
+    event = { "BufReadPre" },
+    config = true,
+  },
   {
     "ruifm/gitlinker.nvim",
     event = "User InGitRepo",

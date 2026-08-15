@@ -25,7 +25,11 @@ vim.g.loaded_ruby_provider = 0  -- Disable ruby provider
 vim.g.loaded_node_provider = 0  -- Disable node provider
 vim.g.did_install_default_menus = 1  -- do not load menu
 
-if utils.executable('python3') then
+-- Nix's Neovim wrapper sets this before loading init.lua. Preserve that
+-- provider path so UltiSnips uses the Python environment containing pynvim.
+if vim.g.python3_host_prog then
+  -- Already configured by the Neovim wrapper.
+elseif utils.executable('python3') then
   if vim.g.is_win then
     vim.g.python3_host_prog = fn.substitute(fn.exepath("python3"), ".exe$", '', 'g')
   else

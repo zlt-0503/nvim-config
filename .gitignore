@@ -1,8 +1,47 @@
-tags
-tags-*
-*.spl
-*.exe
-*.out
-.netrwhist
-*.log
-.DS_Store
+# Whitelist-based repository: ignore every file recursively, keep directories
+# traversable, then explicitly allow portable configuration and Nix sources.
+*
+!*/
+
+# Repository metadata and top-level entrypoints.
+!/.gitignore
+!/.stylua.toml
+!/README.md
+!/flake.nix
+!/flake.lock
+!/ginit.vim
+!/init.lua
+!/lazy-lock.json
+
+# Lua configuration.
+!/lua/
+!/lua/**/
+!/lua/**/*.lua
+
+# Vimscript and filetype configuration.
+!/after/
+!/after/**/
+!/after/**/*.lua
+!/after/**/*.vim
+!/autoload/
+!/autoload/**/*.vim
+!/ftdetect/
+!/ftdetect/**/*.lua
+!/ftdetect/**/*.vim
+!/plugin/
+!/plugin/**/*.lua
+!/plugin/**/*.vim
+!/viml_conf/
+!/viml_conf/**/*.vim
+
+# User snippets and static resources.
+!/my_snippets/
+!/my_snippets/**/*.snippets
+!/resources/
+!/resources/head.tex
+!/spell/
+!/spell/en.utf-8.add
+
+# Standalone flake and Home Manager module.
+!/nix/
+!/nix/**/*.nix

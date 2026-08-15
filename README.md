@@ -9,6 +9,42 @@ The plugin manager is `lazy.nvim`. Plugin specs live in
 `lua/plugin_specs.lua`, and plugin-specific Lua configuration lives in
 `lua/config/`.
 
+## Nix and Home Manager
+
+This repository is also a standalone flake exporting
+`homeManagerModules.default`. The module installs Neovim, its Python provider,
+the lazy.nvim bootstrap plugin, core command-line dependencies, and the
+language servers configured in `lua/config/lsp.lua`.
+
+Plugins other than lazy.nvim remain managed by lazy.nvim and are pinned by
+`lazy-lock.json`. This preserves the existing lazy-loading and plugin build
+hooks while Nix manages the editor and external runtime dependencies.
+
+The default module uses an immutable Nix-store copy of the configuration. A
+parent dotfiles repository can set `sorasuka.neovim.source` to an absolute
+checkout path so the generated `~/.config/nvim` entries point back to that
+checkout. This keeps `lazy-lock.json` and the configuration editable in a Git
+submodule; changing `init.lua` itself still requires Home Manager activation.
+
+Example Home Manager import:
+
+```nix
+{
+  imports = [ ./path/to/nvim-config/nix/home-manager.nix ];
+
+  sorasuka.neovim = {
+    enable = true;
+    source = "/home/user/.config/dotfiles/config/nvim";
+  };
+}
+```
+
+Independent validation:
+
+```sh
+nix flake check
+```
+
 ## Requirements
 
 Required or strongly recommended tools:
@@ -51,7 +87,7 @@ Neovim plugins.
 - `ftdetect/`: custom filetype detection.
 - `plugin/`: custom commands and abbreviations.
 - `autoload/`: Vimscript helper functions and text objects.
-- `my_snippets/`: custom snippet files loaded by LuaSnip.
+- `my_snippets/`: custom UltiSnips snippets.
 - `resources/head.tex`: Pandoc/XeLaTeX header for Markdown PDF export.
 - `spell/en.utf-8.add`: custom spellfile.
 - `lazy-lock.json`: lazy.nvim lockfile.
@@ -111,8 +147,8 @@ Lazy command abbreviations:
 - `hrsh7th/cmp-buffer`: buffer completion
 - `hrsh7th/cmp-omni`: omni completion, mainly for TeX
 - `hrsh7th/cmp-emoji`: emoji completion
-- `L3MON4D3/LuaSnip`: snippet engine
-- `saadparwaiz1/cmp_luasnip`: LuaSnip completion source
+- `quangnguyen30192/cmp-nvim-ultisnips`: UltiSnips completion source
+- `SirVer/ultisnips`: snippet engine using the Python provider
 - `honza/vim-snippets`: snippet collection
 - `windwp/nvim-autopairs`: automatic pairs
 - `tpope/vim-commentary`: comment operator
@@ -227,7 +263,7 @@ Lualine uses the `catppuccin-macchiato` theme.
 `nvim-cmp` sources:
 
 - LSP
-- LuaSnip
+- UltiSnips
 - Path
 - Buffer
 - Emoji
@@ -245,14 +281,14 @@ Completion mappings:
 | Insert | `<C-d>` | Scroll docs up |
 | Insert | `<C-f>` | Scroll docs down |
 
-LuaSnip mappings:
+UltiSnips mappings:
 
 | Mode | Key | Action |
 | --- | --- | --- |
 | Insert/Snippet | `<C-j>` | Expand or jump forward |
 | Insert/Snippet | `<C-k>` | Jump backward |
 
-Custom snippets are in `my_snippets/`:
+Custom snippets are loaded from `my_snippets/`:
 
 - `all.snippets`
 - `c.snippets`
