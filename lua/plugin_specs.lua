@@ -594,8 +594,37 @@ local plugin_specs = {
   }
 }
 
+local function resolve_lazy_lockfile()
+  local config_lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json"
+
+  -- An out-of-store Home Manager deployment points at the writable checkout,
+  -- so keep updating the repository lockfile in that mode.
+  if vim.fn.filewritable(config_lockfile) == 1 then
+    return config_lockfile
+  end
+
+  -- An immutable deployment links the config lockfile into /nix/store. Seed a
+  -- writable per-user copy once, then let lazy.nvim persist runtime updates
+  -- there without trying to modify the store.
+  local state_lockfile = vim.fn.stdpath("state") .. "/lazy-lock.json"
+  if vim.fn.filereadable(state_lockfile) == 0 then
+    vim.fn.mkdir(vim.fn.fnamemodify(state_lockfile, ":h"), "p")
+    if vim.fn.filereadable(config_lockfile) == 1 then
+      local ok, err = pcall(function()
+        vim.fn.writefile(vim.fn.readfile(config_lockfile), state_lockfile)
+      end)
+      if not ok then
+        error("Unable to initialize writable lazy.nvim lockfile: " .. tostring(err))
+      end
+    end
+  end
+
+  return state_lockfile
+end
+
 -- configuration for lazy itself.
 local lazy_opts = {
+  lockfile = resolve_lazy_lockfile(),
   rocks = {
     enabled = false,
   },

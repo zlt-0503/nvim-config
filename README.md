@@ -71,6 +71,12 @@ Rerun `nix run .#install` after changing the checkout. Existing unmanaged files
 are protected by Home Manager's activation collision check rather than being
 silently overwritten.
 
+Because the repository lockfile is read-only in this mode, lazy.nvim seeds a
+writable runtime copy at `stdpath("state")/lazy-lock.json` on first launch and
+updates that copy during `:Lazy sync`. A parent deployment that sets
+`sorasuka.neovim.source` keeps using the writable checkout's
+`lazy-lock.json` directly.
+
 Only Nix with the `nix-command` and `flakes` features is required for this
 deployment. Home Manager is provided by the locked flake input, and
 `nix-darwin` is not required. On macOS, the system supplies Neovim clipboard
