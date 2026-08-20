@@ -1,6 +1,6 @@
 # Neovim Configuration
 
-This is a personal Neovim configuration for Fedora/Linux. It is based on the
+This is a personal Neovim configuration for Linux and macOS. It is based on the
 reference config in `nvim_config_bak`, with local changes for Go, Rust, OCaml,
 and Linux kernel development. Python, JavaScript, and Copilot support are
 intentionally removed.
@@ -43,7 +43,48 @@ Independent validation:
 
 ```sh
 nix flake check
+nix flake check --all-systems --no-build
 ```
+
+The regular check builds the activation package for the current platform. The
+second command evaluates the module for x86_64/aarch64 Linux and Intel/Apple
+Silicon macOS without trying to cross-build foreign activation packages.
+
+### Standalone deployment
+
+From this repository, build and activate the configuration for the currently
+logged-in user with only Nix:
+
+```sh
+nix run .#install -- --dry-run
+nix run .#install
+```
+
+The app obtains the username from `id -un`, the home directory from `$HOME`,
+and the platform from the selected flake app. It therefore works without
+editing a username, home path, or `aarch64-darwin`/`x86_64-darwin` value. The
+dry run builds the exact activation package but does not change the home
+directory. Run it as the target user, never with `sudo`.
+
+This standalone path uses an immutable Nix-store copy of the configuration.
+Rerun `nix run .#install` after changing the checkout. Existing unmanaged files
+are protected by Home Manager's activation collision check rather than being
+silently overwritten.
+
+Only Nix with the `nix-command` and `flakes` features is required for this
+deployment. Home Manager is provided by the locked flake input, and
+`nix-darwin` is not required. On macOS, the system supplies Neovim clipboard
+integration through `pbcopy` and `pbpaste`; `wl-clipboard` is installed only on
+Linux.
+
+### Parent Home Manager integration
+
+The standalone app is additive: the exported `homeManagerModules.default`
+interface remains available to a parent Home Manager or nix-darwin flake. The
+parent owns `home.username`, `home.homeDirectory`, and activation, while this
+repository only contributes the Neovim module. Set `sorasuka.neovim.source` as
+shown above when the parent should link to an editable checkout; omit it for an
+immutable Nix-store copy.
 
 ## Requirements
 
@@ -68,9 +109,9 @@ Optional tools enable optional features:
 - `latex`, `latexmk`, `xelatex`, `pandoc` for TeX and Markdown PDF workflows
 - `tmux`, `sbcl`, `trash`, `yazi`, `gdb`
 
-This config does not install external language servers. Install them manually
-with your system package manager or language toolchain. Lazy.nvim only manages
-Neovim plugins.
+The Home Manager module installs the configured language servers by default;
+set `sorasuka.neovim.languageServers = false` if you prefer to manage them
+yourself. Lazy.nvim manages Neovim plugins only.
 
 ## Directory Layout
 

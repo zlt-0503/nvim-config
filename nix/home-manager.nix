@@ -65,9 +65,8 @@ let
     trash-cli
     tree-sitter
     universal-ctags
-    wl-clipboard
     yazi
-  ];
+  ] ++ lib.optionals pkgs.stdenv.isLinux [ wl-clipboard ];
 
   languageServers = with pkgs; [
     bash-language-server
