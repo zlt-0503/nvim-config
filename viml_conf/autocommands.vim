@@ -61,8 +61,9 @@ function! s:custom_highlight() abort
   highlight Cursor cterm=bold gui=bold guibg=#00c918 guifg=black
   highlight Cursor2 guifg=red guibg=red
 
-  " For floating windows border highlight
-  highlight FloatBorder guifg=LightGreen guibg=NONE
+  " Transparent floating windows with a white border
+  highlight NormalFloat guibg=NONE
+  highlight FloatBorder gui=bold guifg=#ffffff guibg=NONE
 
   " highlight for matching parentheses
   highlight MatchParen cterm=bold,underline gui=bold,underline

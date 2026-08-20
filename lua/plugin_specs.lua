@@ -392,7 +392,7 @@ local plugin_specs = {
   -- Plain-text note taking with zk.
   {
     "zk-org/zk-nvim",
-    version = "0.3.0",
+    version = "0.4.0",
     ft = { "markdown" },
     cmd = {
       "ZkBacklinks",

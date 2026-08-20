@@ -80,5 +80,5 @@
   "yanky.nvim": { "branch": "main", "commit": "b13d318dc7c816e2eee626dde61fa0a7237bc77e" },
   "yazi.nvim": { "branch": "main", "commit": "d4912adef07b330baf0fc92a4a621a4cbfb3e826" },
   "zen-mode.nvim": { "branch": "main", "commit": "8564ce6d29ec7554eb9df578efa882d33b3c23a7" },
-  "zk-nvim": { "branch": "main", "commit": "8fdd7032633045ece559273370fc0ec75ee8ffce" }
+  "zk-nvim": { "branch": "main", "commit": "e9cb2b39841a162ed9169d87d6e5a4ec2ee2ef31" }
 }

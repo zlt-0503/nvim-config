@@ -276,11 +276,19 @@ diagnostic.config {
 --   update_in_insert = false,
 -- })
 
--- Change border of documentation hover window, See https://github.com/neovim/neovim/pull/13998.
-lsp.handlers["textDocument/hover"] = lsp.with(vim.lsp.handlers.hover, {
-  border = float_border.lsp,
-})
+-- Preserve the old vim.lsp.with() behavior without relying on the deprecated
+-- helper: merge the border into the per-request handler configuration.
+local function with_border(handler, border)
+  return function(err, result, ctx, config)
+    return handler(err, result, ctx, vim.tbl_deep_extend("force", config or {}, {
+      border = border,
+    }))
+  end
+end
 
-lsp.handlers["textDocument/signatureHelp"] = lsp.with(vim.lsp.handlers.signature_help, {
-  border = float_border.lsp,
-})
+lsp.handlers["textDocument/hover"] = with_border(vim.lsp.handlers.hover, float_border.lsp)
+
+lsp.handlers["textDocument/signatureHelp"] = with_border(
+  vim.lsp.handlers.signature_help,
+  float_border.lsp
+)

@@ -1,3 +1,5 @@
+require("config.float-border")
+
 local ok, icons = pcall(require, "which-key.icons")
 if ok then
   icons.providers = vim.tbl_filter(function(provider)
@@ -5,7 +7,7 @@ if ok then
   end, icons.providers)
 end
 
-require("which-key").setup {
+require("which-key").setup({
   preset = "classic",
   plugins = {
     marks = true, -- shows a list of your marks on ' and `
@@ -34,9 +36,12 @@ require("which-key").setup {
     rules = {},
   },
   win = {
-    border = "none", -- none, single, double, shadow
+    border = "rounded",
     padding = { 1, 0 }, -- extra window padding [top/bottom, right/left]
     title = false,
+    wo = {
+      winblend = 0,
+    },
   },
   layout = {
     width = { min = 20, max = 50 }, -- min and max width of the columns
@@ -60,7 +65,7 @@ require("which-key").setup {
   triggers = {
     { "<auto>", mode = "nxso" },
   },
-}
+})
 
 require("which-key").add({
   { "gc", desc = "Comments", mode = { "n", "x" } },
