@@ -74,8 +74,14 @@ let
     gopls
     lua-language-server
     ocamlPackages.ocaml-lsp
+    pyright
+    ruff
     rust-analyzer
     vim-language-server
+  ];
+
+  notebookTools = [
+    pkgs.python3Packages.jupytext
   ];
 
   writingTools = with pkgs; [
@@ -103,6 +109,12 @@ in
       description = "Install the language servers enabled by lua/config/lsp.lua.";
     };
 
+    notebookSupport = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Install Jupytext and Python dependencies for editing and executing notebooks.";
+    };
+
     writingTools = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -125,7 +137,13 @@ in
 
       withNodeJs = false;
       withPython3 = true;
-      extraPython3Packages = pythonPackages: [ pythonPackages.pynvim ];
+      extraPython3Packages = pythonPackages: [
+        pythonPackages.pynvim
+      ] ++ lib.optionals cfg.notebookSupport (with pythonPackages; [
+        ipykernel
+        jupyter-client
+        nbformat
+      ]);
 
       plugins = [ pkgs.vimPlugins.lazy-nvim ];
       # Home Manager owns the generated init.lua so it can prepend provider and
@@ -134,6 +152,7 @@ in
       extraPackages =
         corePackages
         ++ lib.optionals cfg.languageServers languageServers
+        ++ lib.optionals cfg.notebookSupport notebookTools
         ++ lib.optionals cfg.writingTools writingTools
         ++ lib.optional cfg.commonLisp pkgs.sbcl;
     };

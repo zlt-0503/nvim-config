@@ -1,3 +1,8 @@
+-- nvim-treesitter installs parsers beside the plugin. Prefer that directory
+-- over legacy parsers in stdpath("data")/site, otherwise a stale parser can be
+-- combined with newer queries and fail on newly introduced node types.
+vim.opt.runtimepath:prepend(vim.fn.stdpath("data") .. "/lazy/nvim-treesitter")
+
 require("nvim-treesitter.configs").setup {
   ensure_installed = {
     "asm",
@@ -12,6 +17,7 @@ require("nvim-treesitter.configs").setup {
     "lua",
     "ocaml",
     "ocaml_interface",
+    "python",
     "rust",
     "toml",
     "vim",

@@ -204,6 +204,34 @@ if utils.executable("ocamllsp") then
   })
 end
 
+if utils.executable("pyright-langserver") then
+  enable_lsp("pyright", {
+    on_attach = custom_attach,
+    capabilities = capabilities,
+    settings = {
+      python = {
+        analysis = {
+          autoSearchPaths = true,
+          typeCheckingMode = "basic",
+          useLibraryCodeForTypes = true,
+        },
+      },
+    },
+  })
+end
+
+if utils.executable("ruff") then
+  enable_lsp("ruff", {
+    on_attach = function(client, bufnr)
+      -- Pyright provides richer hover information; keep Ruff focused on
+      -- diagnostics, fixes, imports, and formatting.
+      client.server_capabilities.hoverProvider = false
+      custom_attach(client, bufnr)
+    end,
+    capabilities = capabilities,
+  })
+end
+
 -- set up vim-language-server
 if utils.executable("vim-language-server") then
   enable_lsp("vimls", {

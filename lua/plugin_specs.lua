@@ -61,6 +61,50 @@ local plugin_specs = {
     end,
   },
 
+  -- Open notebooks as editable Python buffers with # %% cell markers and
+  -- write changes back to the original .ipynb document.
+  {
+    "GCBallesteros/jupytext.nvim",
+    lazy = false,
+    opts = {
+      style = "hydrogen",
+      output_extension = "auto",
+      force_ft = nil,
+    },
+  },
+
+  -- Execute Python/Jupytext cells through a Jupyter kernel.
+  {
+    "benlubas/molten-nvim",
+    version = "^1.0.0",
+    build = ":UpdateRemotePlugins",
+    cmd = {
+      "MoltenEvaluateLine",
+      "MoltenEvaluateVisual",
+      "MoltenHideOutput",
+      "MoltenInit",
+      "MoltenReevaluateCell",
+      "MoltenShowOutput",
+    },
+    init = function()
+      vim.g.molten_auto_open_output = false
+      vim.g.molten_output_win_max_height = 20
+    end,
+    keys = {
+      { "<leader>mi", "<cmd>MoltenInit<cr>", desc = "initialize notebook kernel" },
+      { "<leader>ml", "<cmd>MoltenEvaluateLine<cr>", desc = "evaluate notebook line" },
+      { "<leader>mr", "<cmd>MoltenReevaluateCell<cr>", desc = "reevaluate notebook cell" },
+      { "<leader>mo", "<cmd>MoltenShowOutput<cr>", desc = "show notebook output" },
+      { "<leader>mh", "<cmd>MoltenHideOutput<cr>", desc = "hide notebook output" },
+      {
+        "<leader>mv",
+        ":<C-u>MoltenEvaluateVisual<cr>",
+        mode = "v",
+        desc = "evaluate notebook selection",
+      },
+    },
+  },
+
   {
     "fatih/vim-go",
     ft = { "go", "gomod", "gowork", "gotmpl" },

@@ -235,6 +235,14 @@ Platform-specific editing plugins:
 - `sakhnik/nvim-gdb`: GDB integration on Linux and Windows
 - `zk-org/zk-nvim`: Markdown note workflow
 
+Python and notebooks:
+
+- Pyright provides Python completion, navigation, and type diagnostics.
+- Ruff provides lint diagnostics, fixes, import organization, and formatting.
+- `GCBallesteros/jupytext.nvim` opens `.ipynb` files as Python buffers with
+  `# %%` cell markers and writes them back as notebooks.
+- `benlubas/molten-nvim` executes lines, selections, and cells in a Jupyter kernel.
+
 Configured LSP servers are enabled only if their executables are present:
 
 - `ltex`: text, plaintex, tex, markdown
@@ -242,11 +250,13 @@ Configured LSP servers are enabled only if their executables are present:
 - `gopls`: Go
 - `rust_analyzer`: Rust
 - `ocamllsp`: OCaml
+- `pyright`: Python completion, navigation, and type checking
+- `ruff`: Python linting, fixes, import organization, and formatting
 - `vimls`: Vimscript
 - `bashls`: shell scripts
 - `lua_ls`: Lua
 
-No Python LSP, JavaScript LSP, or Copilot support is configured.
+No JavaScript LSP or Copilot support is configured.
 
 ### Search, Navigation, UI, and Files
 
@@ -360,6 +370,7 @@ Python snippets were removed.
 | Normal | `<leader>p` | Paste non-linewise text below current line |
 | Normal | `<leader>P` | Paste non-linewise text above current line |
 | Normal | `<leader>w` | Save current buffer |
+| Normal | `<leader>tw` | Toggle line wrapping in current window |
 | Normal | `<leader>q` | Save if modified and quit current window |
 | Normal | `<leader>Q` | Quit all Neovim windows |
 | Normal | `[l` / `]l` | Previous/next location item |
@@ -480,6 +491,18 @@ Diagnostics:
 - Severity sorting enabled
 - Hover windows use rounded borders
 - CursorHold opens diagnostic float when cursor position changes
+
+## Notebook Key Mappings
+
+After opening an `.ipynb` file, run `<leader>mi` and select a Python kernel.
+
+| Mode | Key | Action |
+| --- | --- | --- |
+| Normal | `<leader>mi` | Initialize a Jupyter kernel |
+| Normal | `<leader>ml` | Evaluate the current line |
+| Visual | `<leader>mv` | Evaluate the selection |
+| Normal | `<leader>mr` | Re-evaluate the current cell |
+| Normal | `<leader>mo` / `<leader>mh` | Show/hide output |
 
 ## Filetype Behavior
 

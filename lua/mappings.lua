@@ -115,6 +115,12 @@ keymap.set("n", "<leader>P", "m`O<ESC>p``", { desc = "paste above current line" 
 -- Shortcut for faster save and quit
 keymap.set("n", "<leader>w", "<cmd>update<cr>", { silent = true, desc = "save buffer" })
 
+-- Toggle soft wrapping in the current window.
+keymap.set("n", "<leader>tw", function()
+  vim.wo.wrap = not vim.wo.wrap
+  vim.notify("Line wrap " .. (vim.wo.wrap and "enabled" or "disabled"))
+end, { desc = "toggle line wrap" })
+
 -- Saves the file if modified and quit
 keymap.set("n", "<leader>q", "<cmd>x<cr>", { silent = true, desc = "quit current window" })
 
